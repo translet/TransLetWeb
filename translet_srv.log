@@ -1,0 +1,54 @@
+2018-03-13 12:11:18,471 <module> Logger setup
+2018-03-13 12:11:42,098 auth headers:EnvironHeaders([('Content-Length', u'50'), ('User-Agent', u'Dalvik/2.1.0 (Linux; U; Android 7.0; Android SDK built for x86 Build/NYC)'), ('Connection', u'Keep-Alive'), ('Content-Type', u'text/plain'), ('Host', u'192.168.5.22:9090'), ('Accept-Encoding', u'gzip')])
+2018-03-13 12:11:42,116 auth <Request 'http://192.168.5.22:9090/auth/?email=saurabhsshukla%40gmail.com&password=saurabh' [POST]>
+2018-03-13 12:11:42,121 auth data:ImmutableMultiDict([('password', u'saurabh'), ('email', u'saurabhsshukla@gmail.com')])
+2018-03-13 12:11:42,123 auth headers:EnvironHeaders([('Content-Length', u'50'), ('User-Agent', u'Dalvik/2.1.0 (Linux; U; Android 7.0; Android SDK built for x86 Build/NYC)'), ('Connection', u'Keep-Alive'), ('Content-Type', u'text/plain'), ('Host', u'192.168.5.22:9090'), ('Accept-Encoding', u'gzip')])
+2018-03-13 12:11:42,124 auth data:ImmutableMultiDict([('password', u'saurabh'), ('email', u'saurabhsshukla@gmail.com')])
+2018-03-13 12:11:42,124 auth headers:EnvironHeaders([('Content-Length', u'50'), ('User-Agent', u'Dalvik/2.1.0 (Linux; U; Android 7.0; Android SDK built for x86 Build/NYC)'), ('Connection', u'Keep-Alive'), ('Content-Type', u'text/plain'), ('Host', u'192.168.5.22:9090'), ('Accept-Encoding', u'gzip')])
+2018-03-13 12:11:42,126 auth email:saurabhsshukla@gmail.comPwd:saurabh
+2018-03-13 12:11:42,132 auth Executing:select uid from Users where email='saurabhsshukla@gmail.com' AND password='saurabh'
+2018-03-13 12:29:21,510 auth headers:EnvironHeaders([('User-Agent', u'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36'), ('Connection', u'keep-alive'), ('Dnt', u'1'), ('Host', u'192.168.5.22:9090'), ('Upgrade-Insecure-Requests', u'1'), ('Accept', u'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8'), ('Accept-Language', u'en-US,en;q=0.9,mr-IN;q=0.8,mr;q=0.7,hi-IN;q=0.6,hi;q=0.5'), ('Accept-Encoding', u'gzip, deflate')])
+2018-03-13 12:29:21,511 auth headers:EnvironHeaders([('User-Agent', u'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36'), ('Connection', u'keep-alive'), ('Dnt', u'1'), ('Host', u'192.168.5.22:9090'), ('Upgrade-Insecure-Requests', u'1'), ('Accept', u'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8'), ('Accept-Language', u'en-US,en;q=0.9,mr-IN;q=0.8,mr;q=0.7,hi-IN;q=0.6,hi;q=0.5'), ('Accept-Encoding', u'gzip, deflate')])
+2018-03-14 12:35:25,338 <module> Logger setup
+2018-03-14 13:06:18,817 auth <Request 'http://192.168.5.22:9090/auth/?email=saurabhsshukla%40gmail.com&password=saurabh' [POST]>
+2018-03-14 13:06:18,829 auth data:ImmutableMultiDict([('password', u'saurabh'), ('email', u'saurabhsshukla@gmail.com')])
+2018-03-14 13:06:18,831 auth email:saurabhsshukla@gmail.comPwd:saurabh
+2018-03-14 13:06:18,833 auth Executing:select uid from Users where email='saurabhsshukla@gmail.com' AND password='saurabh'
+2018-03-14 21:49:02,876 <module> Logger setup
+2018-03-14 22:02:18,679 <module> Logger setup
+2018-03-14 22:17:08,450 <module> Logger setup
+2018-03-14 22:18:06,094 auth <Request 'http://192.168.5.22:9090/auth/?uname=saurabhsshukla&password=saurabh' [GET]>
+2018-03-14 22:18:06,094 auth data:ImmutableMultiDict([('uname', u'saurabhsshukla'), ('password', u'saurabh')])
+2018-03-14 22:18:06,094 auth uname:saurabhsshuklaPwd:saurabh
+2018-03-14 22:18:06,095 auth Executing:select uid from Users where uname='saurabhsshukla' AND password='saurabh'
+2018-03-14 22:19:15,054 auth <Request 'http://192.168.5.22:9090/auth/?email=saurabhsshukla%40gmail.com&password=saurabh' [POST]>
+2018-03-14 22:19:15,054 auth data:ImmutableMultiDict([('password', u'saurabh'), ('email', u'saurabhsshukla@gmail.com')])
+2018-03-14 22:19:15,054 auth email:saurabhsshukla@gmail.comPwd:saurabh
+2018-03-14 22:19:15,054 auth Executing:select uid from Users where email='saurabhsshukla@gmail.com' AND password='saurabh'
+2018-03-14 22:19:33,392 auth <Request 'http://192.168.5.22:9090/auth/?email=saurabhsshukla%40test.com&password=saurabh' [POST]>
+2018-03-14 22:19:33,393 auth data:ImmutableMultiDict([('password', u'saurabh'), ('email', u'saurabhsshukla@test.com')])
+2018-03-14 22:19:33,398 auth email:saurabhsshukla@test.comPwd:saurabh
+2018-03-14 22:19:33,399 auth Executing:select uid from Users where email='saurabhsshukla@test.com' AND password='saurabh'
+2018-03-14 23:16:29,977 auth <Request 'http://192.168.5.22:9090/auth/?email=saurabhsshukla%40gmail.com&password=saurabh' [POST]>
+2018-03-14 23:16:29,978 auth data:ImmutableMultiDict([('password', u'saurabh'), ('email', u'saurabhsshukla@gmail.com')])
+2018-03-14 23:16:29,985 auth email:saurabhsshukla@gmail.comPwd:saurabh
+2018-03-14 23:16:29,986 auth Executing:select uid from Users where email='saurabhsshukla@gmail.com' AND password='saurabh'
+2018-03-15 16:50:42,233 <module> Logger setup
+2018-03-15 17:12:33,353 <module> Logger setup
+2018-03-15 17:12:49,252 index Test error message
+2018-03-15 17:24:21,432 index Test error message
+2018-03-15 17:26:34,006 index Test error message
+2018-03-15 17:28:14,871 auth <Request 'http://192.168.5.22:9090/auth/?uname=saurabhsshukla' [POST]>
+2018-03-15 17:28:14,871 auth data:ImmutableMultiDict([('uname', u'saurabhsshukla')])
+2018-03-15 17:28:14,871 auth <class 'werkzeug.exceptions.BadRequestKeyError'>:400 Bad Request: The browser (or proxy) sent a request that this server could not understand.
+2018-03-15 17:29:14,058 auth <Request 'http://192.168.5.22:9090/auth/?uname=saurabhsshukla&password=saurabh' [POST]>
+2018-03-15 17:29:14,059 auth data:ImmutableMultiDict([('uname', u'saurabhsshukla'), ('password', u'saurabh')])
+2018-03-15 17:29:14,059 auth uname:saurabhsshuklaPwd:saurabh
+2018-03-15 17:29:14,060 auth Executing:select uid from Users where uname='saurabhsshukla' AND password='saurabh'
+2018-03-15 17:31:32,935 <module> Logger setup
+2018-03-15 17:31:44,748 auth <Request 'http://192.168.5.22:9090/auth/?uname=saurabhsshukla' [POST]>
+2018-03-15 17:31:44,748 auth data:ImmutableMultiDict([('uname', u'saurabhsshukla')])
+2018-03-15 17:31:44,749 auth <class 'werkzeug.exceptions.BadRequestKeyError'>:400 Bad Request: The browser (or proxy) sent a request that this server could not understand.
+2018-03-15 17:37:14,647 auth data:{u'password': u'saurabh', u'email': u'saurabhsshukla@gmail.com'}
+2018-03-15 17:37:14,648 auth email:saurabhsshukla@gmail.comPwd:saurabh
+2018-03-15 17:37:14,648 auth Executing:select uid from Users where email='saurabhsshukla@gmail.com' AND password='saurabh'
