@@ -2,11 +2,11 @@ import MySQLdb
 import logging
 from app_globals import *
 
-logging.basicConfig(format="%(asctime)s %(funcName)s %(message)s",
+logging.basicConfig(format="%(asctime)s %(funcName)s:%(lineno)d %(message)s",
                      filename=LOGDIR+"{0}.log".format(__name__),
                      level='DEBUG')
-logger = logging.getLogger(__name__)
-logger.info("Logger setup")
+dblogger = logging.getLogger(__name__)
+dblogger.info("Logger setup")
 
 db = MySQLdb.connect(host='192.168.5.22',
                         user='commserver',
