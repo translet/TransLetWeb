@@ -8,10 +8,10 @@ logging.basicConfig(format="%(asctime)s %(funcName)s:%(lineno)d %(message)s",
 dblogger = logging.getLogger(__name__)
 dblogger.info("Logger setup")
 
-db = MySQLdb.connect(host='192.168.5.22',
+db = MySQLdb.connect(host='localhost',
                         user='commserver',
-                        passwd='commserver',
-                        db='CollabCommDB')
+                        passwd='CommPass',
+                        db='TransLetDB')
 
 def get_userdata(uid):
     d = {}
