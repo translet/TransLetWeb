@@ -35,7 +35,7 @@ def internal_error(e):
     msg = {
             'status':500,
             'message':'Internal server error:{0}'.format(type(e)),
-            'uid':str(-1)
+            'uid':-1
     }
     return msg
 
@@ -73,13 +73,13 @@ def auth(data):
             msg = {
                     'status':1,
                     'message':__name__+':User/password mismatch.',
-                    'uid':str(-1)
+                    'uid':-1
             }
         else:
             msg = {
                     'status':0,
                     'message':'authentication success',
-                    'uid':str(qret[0][0])
+                    'uid':qret[0][0]
             }
         return msg
     except Exception as e:
@@ -89,12 +89,14 @@ def auth(data):
 def get_attendees(users):
     userlist = "','".join(users)
     q = "select uid from Users where email in ('"+userlist+"')"
+    logger.debug(q)
     qret = Query(q).execute()
     uids = []
     if qret != None:
+        logger.debug(repr(qret))
         #uids = [clients[str(r[0])] for r in qret]
-        uids = filter(lambda e:str(e) in Clients, qret[0]);
-        pending = filter(lambda e:str(e) not in Clients, qret[0]);
+        uids = [v[0] for v in filter(lambda e:e[0] in Clients, qret)]
+        pending = [v[0] for v in filter(lambda e:e[0] not in Clients, qret)]
     return uids, pending
     
     
@@ -140,12 +142,15 @@ def login(ev):
     msg['usersession'] = request.sid
     emit('login', msg)
     time.sleep(3)
+    logger.debug('Type:{0}'.format(type(Clients.keys()[0])))
+    logger.debug('Clients List:{0}'.format(' '.join(['{0}:{1}'.format(c, Clients[c]) for c in Clients])))
+    logger.debug('Pending List:{0}'.format(' '.join(['({0} {1})'.format(e, Pending[e]) for e in Pending])))
     uid = msg['uid']
-    if (uid in Pending):
+    if uid in Pending:
         emit('session_invite',
             {'status':0,
-                'sessionid':Pending[uid],
-                'message':'{0} user invited you for LiveMeeting'.format(Pending['initiator'])})
+                'sessionid':Pending[uid]['sessionid'],
+                'message':'user {0} invited you for LiveMeeting'.format(Pending[uid]['initiator'])})
 
 
 @socketio.on('client_event', namespace=NAMESPACE)
@@ -156,17 +161,25 @@ def get_message(ev):
 
 @socketio.on('create_session', namespace=NAMESPACE)
 def create_session(ev):
-    sessionid = request.sid+'-'+ev['uid']
+    sessionid = '{0}-{1}'.format(request.sid, ev['uid'])
     join_room(sessionid)
     attendees, pending = get_attendees(ev['invite'])
     for attendee in attendees:
+        logger.debug('Type:{0}'.format(attendee))
         emit('session_invite',
             {'status':0,
                 'sessionid':sessionid,
-                'message':'{0} user invited you for LiveMeeting'.format(ev['uid'])},
+                'message':'user {0} invited you for LiveMeeting'.format(ev['uid'])},
             room=Clients[attendee])    
     for e in pending:
+        logger.debug('Type:{0}'.format(e))
         Pending[e] = {"sessionid":sessionid, "initiator":ev['uid']}
+
+    logger.debug('Pending List:{0}'.format(' '.join(['({0} {1})'.format(e, Pending[e]) for e in Pending])))
+    emit('create_session',
+         {'status':0,
+          'message': 'invites sent to [{0}]'.format(','.join([str(e) for e in attendees])),
+          'sessionid':sessionid})
 
 @socketio.on('join_Session', namespace=NAMESPACE)
 def join_Session(ev):
@@ -178,13 +191,17 @@ def join_Session(ev):
 def leave_Session(ev):
     leave_room(ev['sessionid'])
     emit('user_left',
-         {'status':0, 'message':'User {0} left session.'.format(ev['uid'])})
+         {'status':0, 'message':'User {0} left session.'.format(ev['uid'])}, room=ev['sessionid'])
 
 @socketio.on('close_Session', namespace=NAMESPACE)
 def close_Session(ev):
-    emit('session_closed',
-         {'status':0, 'message':'session {0} is closing.'.format(ev['sessionid'])}, room=ev['sessionid'])
-    close_room(ev['sessionid'])
+    if str(ev['uid']) == ev['sessionid'].split('-')[-1]:
+        emit('session_closed',
+             {'status':0, 'message':'session {0} is closing.'.format(ev['sessionid'])}, room=ev['sessionid'])
+        time.sleep(2)
+        close_room(ev['sessionid'])
+    else:
+        emit('server_event', {'message':'Not owner of the session. Can not close the session.'})
 
 @socketio.on('session_event', namespace=NAMESPACE)
 def broadcast_message(ev):
