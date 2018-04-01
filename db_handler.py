@@ -8,10 +8,26 @@ logging.basicConfig(format="%(asctime)s %(funcName)s:%(lineno)d %(message)s",
 dblogger = logging.getLogger(__name__)
 dblogger.info("Logger setup")
 
-db = MySQLdb.connect(host='localhost',
+class DB:
+    conn = None
+    def __init__(self):
+        self.conn = MySQLdb.connect(host='localhost',
                         user='commserver',
                         passwd='CommPass',
                         db='TransLetDB')
+
+    def cursor(self):
+        try:
+            cur = self.conn.cursor()
+        except (AttributeError, MySQLdb.OperationalError):
+            self.conn = MySQLdb.connect(host='localhost',
+                            user='commserver',
+                            passwd='CommPass',
+                            db='TransLetDB')
+            cur = self.conn.cursor()
+        return cur
+
+db = DB()
 
 def get_userdata(uid):
     d = {}

@@ -35,7 +35,7 @@ def internal_error(e):
     msg = {
             'status':500,
             'message':'Internal server error:{0}'.format(type(e)),
-            'uid':-1
+            'uid':str(-1)
     }
     return msg
 
@@ -67,13 +67,13 @@ def auth(data):
         if 'uname' in data:
             logger.debug("uname:"+data['uname']+"Pwd:"+data['password'])
             user = "uname='"+data['uname']+"'"
-        qry = "select uid from Users where "+user+" AND password='"+data['password']+"'"
+        qry = "select CAST(uid as CHAR) from Users where "+user+" AND password='"+data['password']+"'"
         qret = Query(qry).execute()
         if qret == None:
             msg = {
                     'status':1,
                     'message':__name__+':User/password mismatch.',
-                    'uid':-1
+                    'uid':str(-1)
             }
         else:
             msg = {
@@ -88,7 +88,7 @@ def auth(data):
 
 def get_attendees(users):
     userlist = "','".join(users)
-    q = "select uid from Users where email in ('"+userlist+"')"
+    q = "select CAST(uid as CHAR) from Users where email in ('"+userlist+"')"
     logger.debug(q)
     qret = Query(q).execute()
     uids = []
