@@ -92,6 +92,7 @@ def get_attendees(users):
     logger.debug(q)
     qret = Query(q).execute()
     uids = []
+    pending = []
     if qret != None:
         logger.debug(repr(qret))
         #uids = [clients[str(r[0])] for r in qret]
@@ -195,7 +196,7 @@ def leave_Session(ev):
 
 @socketio.on('close_Session', namespace=NAMESPACE)
 def close_Session(ev):
-    if str(ev['uid']) == ev['sessionid'].split('-')[-1]:
+    if ev['uid'] == ev['sessionid'].split('-')[-1]:
         emit('session_closed',
              {'status':0, 'message':'session {0} is closing.'.format(ev['sessionid'])}, room=ev['sessionid'])
         time.sleep(2)
@@ -210,4 +211,5 @@ def broadcast_message(ev):
 
 if __name__ == "__main__":
     print('Starting server...')
-    socketio.run(srvapp, host='192.168.5.22')
+    #socketio.run(srvapp, host='192.168.5.22')
+    socketio.run(srvapp, host='ec2-52-43-208-107.us-west-2.compute.amazonaws.com')
