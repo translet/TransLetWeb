@@ -24,8 +24,12 @@ class DB:
                         user='commserver',
                         passwd='CommPass',
                         db='TransLetDB')
+	#self.conn.autocommit = True
         thread.start_new_thread(keep_alive)
 
+    def commit(self):
+        dblogger.error('Committing conn')
+        self.conn.commit()
     def cursor(self):
         try:
             cur = self.conn.cursor()
@@ -59,6 +63,9 @@ class Query:
                 result = None
             else:
                 result = cur.fetchall()
+            db.commit()
+            dblogger.error('Closing cursor')
+            cur.close()
             return result
         except Exception as e:
             dblogger.error('Execute:{0}'.format(traceback.format_exc()))

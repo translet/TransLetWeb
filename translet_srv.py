@@ -100,7 +100,41 @@ def get_attendees(users):
         pending = [v[0] for v in filter(lambda e:e[0] not in Clients, qret)]
     return uids, pending
     
+def add_session_to_DB(uid, sessionid):
+    q = "insert into Confroom (sessionid, initiator) VALUES ('"+sessionid+"', "+uid+")"
+    logger.debug(q)
+    qret = Query(q).execute()
+    logger.debug(repr(qret))
+    add_participant_entry(uid, sessionid)
+
+def add_participant_entry(uid, sessionid):
+    q = "insert into Participants (sessionid, uid) VALUES ('"+sessionid+"', "+uid+")"
+    logger.debug(q)
+    qret = Query(q).execute()
+    logger.debug(repr(qret))
     
+def add_transcript_entry(uid, sessionid, message):
+    q = "insert into Transcripts (uid, sessionid, text) VALUES ("+uid+", '"+sessionid+"', '" + message + "')"
+    logger.debug(q)
+    qret = Query(q).execute()
+
+def retrieve_session_history(sessionid):
+    q = "select CAST(uid as CHAR), text from Transcripts where sessionid='"+sessionid+"' order by timestamp"
+    logger.debug(q)
+    qret = Query(q).execute()
+    msgs = []
+    if qret == None:
+        #return [{'uid':'None', 'message':'Empty'}]
+        return []
+    else:
+        for r in qret:
+            msg = {}
+            msg['uid'] = r[0]
+            msg['message'] = r[1]
+            msgs.append(msg)
+        logger.debug(msgs)
+        return msgs
+
 @srvapp.route("/userdata/<uid>", methods = ['GET'])
 def userdata(uid):
     resp = None
@@ -152,6 +186,7 @@ def login(ev):
             {'status':0,
                 'sessionid':Pending[uid]['sessionid'],
                 'message':'user {0} invited you for LiveMeeting'.format(Pending[uid]['initiator'])})
+        Pending.pop(uid, None)
 
 
 @socketio.on('client_event', namespace=NAMESPACE)
@@ -165,15 +200,14 @@ def create_session(ev):
     sessionid = '{0}-{1}'.format(request.sid, ev['uid'])
     join_room(sessionid)
     attendees, pending = get_attendees(ev['invite'])
+    add_session_to_DB(ev['uid'], sessionid)
     for attendee in attendees:
-        logger.debug('Type:{0}'.format(attendee))
         emit('session_invite',
             {'status':0,
                 'sessionid':sessionid,
                 'message':'user {0} invited you for LiveMeeting'.format(ev['uid'])},
             room=Clients[attendee])    
     for e in pending:
-        logger.debug('Type:{0}'.format(e))
         Pending[e] = {"sessionid":sessionid, "initiator":ev['uid']}
 
     logger.debug('Pending List:{0}'.format(' '.join(['({0} {1})'.format(e, Pending[e]) for e in Pending])))
@@ -182,19 +216,25 @@ def create_session(ev):
           'message': 'invites sent to [{0}]'.format(','.join([str(e) for e in attendees])),
           'sessionid':sessionid})
 
-@socketio.on('join_Session', namespace=NAMESPACE)
+@socketio.on('join_session', namespace=NAMESPACE)
 def join_Session(ev):
     join_room(ev['sessionid'])
+    add_participant_entry(ev['uid'], ev['sessionid'])
+    msg = 'User {0} joined session.'.format(ev['uid'])
+    msgs = retrieve_session_history(ev['sessionid'])
     emit('user_joined',
-         {'status':0, 'uid':ev['uid'], 'message':'User {0} joined session.'.format(ev['uid'])}, room=ev['sessionid'])
+         {'status':0, 'uid':ev['uid'], 'history':msgs})
+    emit('server_event',
+         {'status':0, 'uid':ev['uid'], 'message':msg}, room=ev['sessionid'])
 
-@socketio.on('leave_Session', namespace=NAMESPACE)
+@socketio.on('leave_session', namespace=NAMESPACE)
 def leave_Session(ev):
+    logger.debug(ev)
     leave_room(ev['sessionid'])
     emit('user_left',
          {'status':0, 'message':'User {0} left session.'.format(ev['uid'])}, room=ev['sessionid'])
 
-@socketio.on('close_Session', namespace=NAMESPACE)
+@socketio.on('close_session', namespace=NAMESPACE)
 def close_Session(ev):
     if ev['uid'] == ev['sessionid'].split('-')[-1]:
         emit('session_closed',
@@ -206,6 +246,7 @@ def close_Session(ev):
 
 @socketio.on('session_event', namespace=NAMESPACE)
 def broadcast_message(ev):
+    add_transcript_entry(ev['uid'], ev['sessionid'], ev['message'])
     emit('server_broadcast',
          {'status':0, 'uid': ev['uid'], 'message':ev['message']}, room=ev['sessionid'])
 

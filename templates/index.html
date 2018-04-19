@@ -96,11 +96,11 @@
             });
 
             $('form#join').submit(function(event) {
-                socket.emit('join_Session', {sessionid: cltSessionid, uid:cltUid});
+                socket.emit('join_session', {sessionid: cltSessionid, uid:cltUid});
                 return false;
             });
             $('form#leave').submit(function(event) {
-                socket.emit('leave_Session', {sessionid: cltSessionid, uid:cltUid});
+                socket.emit('leave_session', {sessionid: cltSessionid, uid:cltUid});
                 return false;
             });
             $('form#send_room').submit(function(event) {
@@ -108,7 +108,7 @@
                 return false;
             });
             $('form#close').submit(function(event) {
-                socket.emit('close_Session', {sessionid: cltSessionid, uid:cltUid});
+                socket.emit('close_session', {sessionid: cltSessionid, uid:cltUid});
                 return false;
             });
             $('form#disconnect').submit(function(event) {
