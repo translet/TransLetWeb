@@ -135,18 +135,18 @@ def retrieve_session_history(sessionid):
         logger.debug(msgs)
         return msgs
 
-@srvapp.route("/userdata/<uid>", methods = ['GET'])
+@srvapp.route(NAMESPACE+"/userdata/<uid>", methods = ['GET', 'POST'])
 def userdata(uid):
     resp = None
     try:
-        mainlogger.debug('received user:{0}'.format(uid))
+        logger.debug('received user:{0}'.format(uid))
         udata = get_userdata(uid) 
-        mainlogger.debug(repr(udata))
+        logger.debug(repr(udata))
         resp = jsonify(udata)
         resp.status_code = 200
         return resp
     except Exception as e:
-        mainlogger.error('{0}:{1}'.format(type(e), str(e)))
+        logger.error('{0}:{1}'.format(type(e), str(e)))
         return internal_error(e)
 
 '''SocketIO eventHandlers'''
@@ -215,6 +215,13 @@ def create_session(ev):
          {'status':0,
           'message': 'invites sent to [{0}]'.format(','.join([str(e) for e in attendees])),
           'sessionid':sessionid})
+
+@socketio.on('get_history', namespace=NAMESPACE)
+def get_History(ev):
+    msg = 'User requested history for session {0}'.format(ev['sessionid'])
+    msgs = retrieve_session_history(ev['sessionid'])
+    emit('get_history',
+         {'status':0, 'history':msgs})
 
 @socketio.on('join_session', namespace=NAMESPACE)
 def join_Session(ev):

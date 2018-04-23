@@ -45,12 +45,15 @@ class DB:
 db = DB()
 
 def get_userdata(uid):
-    d = {}
-    Q = "select sessionid, isActive from Confroom where initiator={0}".format(uid)
+    udata = []
+    Q = "select sessionid from Participants where uid={0} limit 10".format(uid)
     result = Query(Q).execute()
     if result != None:
-        d = dict([(r[0],r[1]) for r in result])
-    return d;
+        for r in result:
+            d = {}
+            d['sessionid'] = r[0]
+            udata.append(d)
+    return udata
 
 class Query:
     def __init__(self, qstr):
