@@ -20,6 +20,9 @@ from db_handler import Query, get_userdata
 async_mode = None
 Clients = {}
 Pending = {}
+UID_UNAME = {}
+UNAME_UID = {}
+
 NAMESPACE = '/translet'
 
 logger = logging.getLogger(__name__)
@@ -35,7 +38,8 @@ def internal_error(e):
     msg = {
             'status':500,
             'message':'Internal server error:{0}'.format(type(e)),
-            'uid':str(-1)
+            'uid':str(-1),
+            'uname':str(-1)
     }
     return msg
 
@@ -67,20 +71,23 @@ def auth(data):
         if 'uname' in data:
             logger.debug("uname:"+data['uname']+"Pwd:"+data['password'])
             user = "uname='"+data['uname']+"'"
-        qry = "select CAST(uid as CHAR) from Users where "+user+" AND password='"+data['password']+"'"
+        qry = "select CAST(uid as CHAR),uname from Users where "+user+" AND password='"+data['password']+"'"
         qret = Query(qry).execute()
         if qret == None:
             msg = {
                     'status':1,
                     'message':__name__+':User/password mismatch.',
-                    'uid':str(-1)
+                    'uid':str(-1),
+                    'uname':str(-1)
             }
         else:
             msg = {
                     'status':0,
                     'message':'authentication success',
-                    'uid':qret[0][0]
+                    'uid':qret[0][1]
             }
+        UID_UNAME[qret[0][0]]=qret[0][1]
+        UNAME_UID[qret[0][1]]=qret[0][0]
         return msg
     except Exception as e:
         logger.error('{0}:{1}'.format(type(e), str(e)))
@@ -101,25 +108,26 @@ def get_attendees(users):
     return uids, pending
     
 def add_session_to_DB(uid, sessionid):
-    q = "insert into Confroom (sessionid, initiator) VALUES ('"+sessionid+"', "+uid+")"
+    q = "insert into Confroom (sessionid, initiator) VALUES ('"+sessionid+"', "+UNAME_UID[uid]+")"
     logger.debug(q)
     qret = Query(q).execute()
     logger.debug(repr(qret))
     add_participant_entry(uid, sessionid)
 
 def add_participant_entry(uid, sessionid):
-    q = "insert into Participants (sessionid, uid) VALUES ('"+sessionid+"', "+uid+")"
+    q = "insert into Participants (sessionid, uid) VALUES ('"+sessionid+"', "+UNAME_UID[uid]+")"
     logger.debug(q)
     qret = Query(q).execute()
     logger.debug(repr(qret))
     
 def add_transcript_entry(uid, sessionid, message):
-    q = "insert into Transcripts (uid, sessionid, text) VALUES ("+uid+", '"+sessionid+"', '" + message + "')"
+    q = "insert into Transcripts (uid, sessionid, text) VALUES ("+UNAME_UID[uid]+", '"+sessionid+"', '" + message + "')"
     logger.debug(q)
     qret = Query(q).execute()
 
 def retrieve_session_history(sessionid):
-    q = "select CAST(uid as CHAR), text from Transcripts where sessionid='"+sessionid+"' order by timestamp"
+    #q = "select CAST(uid as CHAR), text from Transcripts where sessionid='"+sessionid+"' order by timestamp"
+    q = "select Users.uname,Transcripts.text from Users JOIN Transcripts on Users.uid = Transcripts.uid where Transcripts.sessionid='"+sessionid+"' order by timestamp"
     logger.debug(q)
     qret = Query(q).execute()
     msgs = []
@@ -140,7 +148,7 @@ def userdata(uid):
     resp = None
     try:
         logger.debug('received user:{0}'.format(uid))
-        udata = get_userdata(uid) 
+        udata = get_userdata(UNAME_UID[uid]) 
         logger.debug(repr(udata))
         resp = jsonify(udata)
         resp.status_code = 200
@@ -173,11 +181,13 @@ def disconnect():
 def login(ev):
     msg = auth(ev)
     if msg['status'] == 0:
-        Clients[msg['uid']] = request.sid
+        Clients[UNAME_UID[msg['uid']]] = request.sid
+    else:
+        emit('login', msg)
+        return
     msg['usersession'] = request.sid
     emit('login', msg)
-    time.sleep(3)
-    logger.debug('Type:{0}'.format(type(Clients.keys()[0])))
+    time.sleep(2)
     logger.debug('Clients List:{0}'.format(' '.join(['{0}:{1}'.format(c, Clients[c]) for c in Clients])))
     logger.debug('Pending List:{0}'.format(' '.join(['({0} {1})'.format(e, Pending[e]) for e in Pending])))
     uid = msg['uid']
